@@ -10,10 +10,20 @@ const runner            = require('./test-runner');
 
 const app = express();
 
+// Agregar Helmet para cabeceras de seguridad
 const helmet = require('helmet');
 
-// Agregar Helmet para cabeceras de seguridad
-app.use(helmet());
+// Establece políticas de seguridad del contenido
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://code.jquery.com/jquery-3.7.1.min.js"],
+      styleSrc: ["'self'"],
+    },
+  })
+);
+
 
 // Desactivar cabeceras innecesarias
 app.disable('x-powered-by');

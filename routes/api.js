@@ -33,7 +33,7 @@ module.exports = function (app) {
 
         // Devolver resultados
         if (results.length === 1) {
-          res.json(results[0]);
+          res.json({ stockData: results[0] });
         } else {
           res.json({
             stockData: results.map((result) => ({
@@ -42,7 +42,7 @@ module.exports = function (app) {
               rel_likes: result.likes - results.find(r => r.stock !== result.stock).likes
             }))
           });
-        }
+        }        
       } catch (err) {
         res.status(500).json({ error: err.message });
       }

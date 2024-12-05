@@ -6,63 +6,83 @@ const server = require('../server');
 chai.use(chaiHttp);
 
 describe('Functional Tests', function () {
-    it('Ver una acción: GET /api/stock-prices', function (done) {
-        chai.request(server)
-            .get('/api/stock-prices')
-            .query({ stock: 'AAPL' })
-            .end(function (err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, 'stock');
-                assert.property(res.body, 'price');
-                assert.property(res.body, 'likes');
-                done();
-            });
-    });
+    describe("5 functional get request tests", function () {
+        it("Viewing one stock: GET request to /api/stock-prices/", function (done) {
+            chai
+                .request(server)
+                .get("/api/stock-prices/")
+                .set("content-type", "application/json")
+                .query({ stock: "AAPL" })
+                .end(function (err, res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.stockData.stock, "AAPL");
+                    assert.exists(res.body.stockData.price, "AAPL has a price");
+                    done();
+                });
+        });
 
-    it('Ver una acción y gustarle: GET /api/stock-prices?like=true', function (done) {
-        chai.request(server)
-            .get('/api/stock-prices')
-            .query({ stock: 'GOOG', like: true })
-            .end(function (err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, 'likes');
-                assert.isAbove(res.body.likes, 0);
-                done();
-            });
-    });
+        it("Viewing one stock and liking it: GET request to /api/stock-prices/", function (done) {
+            chai
+                .request(server)
+                .get("/api/stock-prices/")
+                .set("content-type", "application/json")
+                .query({ stock: "GOOG", like: true })
+                .end(function (err, res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.stockData.stock, "GOOG");
+                    assert.equal(res.body.stockData.likes, 1);
+                    assert.exists(res.body.stockData.price, "GOOG has a price");
+                    done();
+                });
+        });
 
-    it('Ver el mismo stock y gustarlo de nuevo', function (done) {
-        chai.request(server)
-            .get('/api/stock-prices')
-            .query({ stock: 'GOOG', like: true })
-            .end(function (err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, 'likes');
-                done();
-            });
-    });
+        it("Viewing the same stock and liking it again: GET request to /api/stock-prices/", function (done) {
+            chai
+                .request(server)
+                .get("/api/stock-prices/")
+                .set("content-type", "application/json")
+                .query({ stock: "GOOG", like: true })
+                .end(function (err, res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.stockData.stock, "GOOG");
+                    assert.equal(res.body.stockData.likes, 1);
+                    assert.exists(res.body.stockData.price, "GOOG has a price");
+                    done();
+                });
+        });
 
-    it('Ver dos acciones: GET /api/stock-prices', function (done) {
-        chai.request(server)
-            .get('/api/stock-prices')
-            .query({ stock: ['MSFT', 'AAPL'] })
-            .end(function (err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, 'stockData');
-                assert.isArray(res.body.stockData);
-                done();
-            });
-    });
+        it("Viewing two stocks: GET request to /api/stock-prices/", function (done) {
+            chai
+                .request(server)
+                .get("/api/stock-prices/")
+                .set("content-type", "application/json")
+                .query({ stock: ["MSFT", "T"] })
+                .end(function (err, res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.stockData[0].stock, "MSFT");
+                    assert.equal(res.body.stockData[1].stock, "T");
+                    assert.exists(res.body.stockData[0].price, "MSFT has a price");
+                    assert.exists(res.body.stockData[1].price, "T has a price");
+                    done();
+                });
+        });
 
-    it('Ver dos acciones y gustarles: GET /api/stock-prices', function (done) {
-        chai.request(server)
-            .get('/api/stock-prices')
-            .query({ stock: ['MSFT', 'AAPL'], like: true })
-            .end(function (err, res) {
-                assert.equal(res.status, 200);
-                assert.isArray(res.body.stockData);
-                assert.property(res.body.stockData[0], 'rel_likes');
-                done();
-            });
+        it("Viewing two stocks and liking them: GET request to /api/stock-prices/", function (done) {
+            chai
+                .request(server)
+                .get("/api/stock-prices/")
+                .set("content-type", "application/json")
+                .query({ stock: ["MSFT", "T"], like: true })
+                .end(function (err, res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.stockData[0].stock, "MSFT");
+                    assert.equal(res.body.stockData[1].stock, "T");
+                    assert.exists(res.body.stockData[0].price, "MSFT has a price");
+                    assert.exists(res.body.stockData[1].price, "T has a price");
+                    assert.exists(res.body.stockData[0].rel_likes, "has rel_likes");
+                    assert.exists(res.body.stockData[1].rel_likes, "has rel_likes");
+                    done();
+                });
+        });
     });
 });
